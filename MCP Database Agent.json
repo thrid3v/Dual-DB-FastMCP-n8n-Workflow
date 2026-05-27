@@ -1,0 +1,138 @@
+{
+  "name": "MCP Database Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -464,
+        -48
+      ],
+      "id": "a72a6e0b-673b-4903-a35c-4e8350ebc62d",
+      "name": "When chat message received",
+      "webhookId": "e71bfe28-6e79-4fb6-ab8c-a92b8282a4e0"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a database assistant.\n\nYou have access to MCP tools for MySQL and PostgreSQL databases.\n\nAlways use MCP tools when the user asks:\n- about tables\n- schemas\n- records\n- products\n- employees\n- databases\n\nAvailable databases:\n- mysql\n- postgres\n\nFor schemas:\nuse get_database_schema\n\nFor records:\nuse execute_read_query\n\nOnly generate safe SELECT queries.\nNever generate INSERT, UPDATE, DELETE, DROP, or ALTER queries."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -208,
+        -48
+      ],
+      "id": "09e886c3-2d59-4a5a-a5ef-ced59106914b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://127.0.0.1:8000/sse",
+        "serverTransport": "sse",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        176
+      ],
+      "id": "44c26865-d21a-4d58-90f7-7783046a78ca",
+      "name": "DB-Server-MCP"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        176
+      ],
+      "id": "7a7c8cd2-8a94-4017-9bc8-00e3f03dc6d8",
+      "name": "Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "k7oRZVLdRYNnMvNJ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -112,
+        176
+      ],
+      "id": "599c2b2b-1dba-4391-b163-c629892b257e",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB-Server-MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "671ad625-c5da-4d3a-b755-963cbb1047a4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7ed4c56e19d52e76189979d6e58b3c75d3b14637099e7998798d5b22b4f2137c"
+  },
+  "id": "AwuibFalDSfz7uxaYwFtP",
+  "tags": []
+}
