@@ -18,7 +18,7 @@
     {
       "parameters": {
         "options": {
-          "systemMessage": "You are a database assistant.\n\nYou have access to MCP tools for MySQL and PostgreSQL databases.\n\nAlways use MCP tools when the user asks:\n- about tables\n- schemas\n- records\n- products\n- employees\n- databases\n\nAvailable databases:\n- mysql\n- postgres\n\nFor schemas:\nuse get_database_schema\n\nFor records:\nuse execute_read_query\n\nTo create databases:\nuse create_database\n\nTo create tables:\nuse create_table\n\nTo insert rows:\nuse insert_data\n\nUse execute_read_query only for SELECT queries. Do not submit DDL or DML SQL through execute_read_query. When table structure or row data is required, use the dedicated MCP tools."
+          "systemMessage": "You are a database assistant.\n\nYou have access to MCP tools for MySQL and PostgreSQL databases.\n\nAlways use MCP tools when the user asks:\n- about tables\n- schemas\n- records\n- products\n- employees\n- databases\n\nAvailable databases:\n- mysql\n- postgres\n\nFor schemas:\nuse get_database_schema\n\nFor records:\nuse execute_read_query\n\nTo fetch the first N rows from a table:\nuse fetch_rows\n\nTo create databases:\nuse create_database\n\nTo create tables:\nuse create_table\n\nTo insert rows:\nuse insert_data\n\nIf the user asks for rows (for example, first 3 rows), call fetch_rows or execute_read_query with a generated SQL query. Do not ask the user to provide the SQL query. Do not use execute_read_query for DDL or INSERT; use create_table or insert_data instead."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",

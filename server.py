@@ -89,7 +89,7 @@ def create_database(db_type: str, database_name: str) -> str:
 def create_table(
     db_type: str,
     table_name: str,
-    columns: str,
+    columns: dict,
     primary_key: str = '',
     if_not_exists: bool = True,
 ) -> str:
@@ -97,10 +97,13 @@ def create_table(
     if not validate_identifier(table_name):
         return 'Error: Invalid table name. Use letters, numbers, and underscores only.'
 
-    try:
-        columns_data = parse_json_input(columns, 'columns')
-    except ValueError as exc:
-        return str(exc)
+    if isinstance(columns, dict):
+        columns_data = columns
+    else:
+        try:
+            columns_data = parse_json_input(columns, 'columns')
+        except ValueError as exc:
+            return str(exc)
 
     if not columns_data:
         return 'Error: columns must be a non-empty object mapping names to types.'
@@ -151,15 +154,18 @@ def create_table(
 
 
 @mcp.tool()
-def insert_data(db_type: str, table_name: str, row_data: str) -> str:
+def insert_data(db_type: str, table_name: str, row_data: dict) -> str:
     '''Inserts a single row into the specified table for MySQL or PostgreSQL.'''
     if not validate_identifier(table_name):
         return 'Error: Invalid table name. Use letters, numbers, and underscores only.'
 
-    try:
-        row = parse_json_input(row_data, 'row_data')
-    except ValueError as exc:
-        return str(exc)
+    if isinstance(row_data, dict):
+        row = row_data
+    else:
+        try:
+            row = parse_json_input(row_data, 'row_data')
+        except ValueError as exc:
+            return str(exc)
 
     if not row:
         return 'Error: row_data must be a non-empty object.'
@@ -193,6 +199,37 @@ def insert_data(db_type: str, table_name: str, row_data: str) -> str:
         cursor.close()
         conn.close()
         return f'Inserted row into {table_name} successfully.'
+    except Exception as e:
+        return f'Database Error encountered: {str(e)}'
+
+
+@mcp.tool()
+def fetch_rows(db_type: str, table_name: str, limit: int = 10) -> str:
+    '''Fetches the first rows from a table using a safe SELECT query.'''
+    if not validate_identifier(table_name):
+        return 'Error: Invalid table name. Use letters, numbers, and underscores only.'
+    if limit <= 0:
+        return 'Error: limit must be a positive integer.'
+
+    try:
+        conn = get_db_connection(db_type)
+        cursor = conn.cursor()
+        if db_type == 'postgres':
+            query = sql.SQL('SELECT * FROM {} LIMIT %s;').format(sql.Identifier(table_name))
+            cursor.execute(query, (limit,))
+        elif db_type == 'mysql':
+            query = f'SELECT * FROM `{table_name}` LIMIT %s;'
+            cursor.execute(query, (limit,))
+        else:
+            return f'Error: Unsupported database type: {db_type}'
+
+        column_names = [desc[0] for desc in cursor.description]
+        rows = cursor.fetchall()
+        results = [dict(zip(column_names, row)) for row in rows]
+
+        cursor.close()
+        conn.close()
+        return json.dumps(results, default=str)
     except Exception as e:
         return f'Database Error encountered: {str(e)}'
 
