@@ -285,4 +285,4 @@ def get_database_schema(db_type: str) -> str:
 
 
 if __name__ == '__main__':
-    mcp.run(transport='sse')
+    mcp.run(transport='http')

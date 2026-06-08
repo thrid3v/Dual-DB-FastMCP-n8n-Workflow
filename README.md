@@ -2,6 +2,14 @@
 
 An intelligent database management system combining **FastMCP**, **n8n**, and **Google Gemini AI** to manage PostgreSQL and MySQL databases through natural language conversation.
 
+## ⚠️ Recent Update: Streamable HTTP Transport
+
+**Migration from SSE (Server-Sent Events) to Streamable HTTP:**
+- The MCP specification deprecated SSE in early 2025 in favor of Streamable HTTP
+- This project has been updated to use the new Streamable HTTP transport
+- Server now runs on `http://127.0.0.1:8000` (previously `http://127.0.0.1:8000/sse`)
+- n8n workflow configuration updated to use `serverTransport: "http"`
+
 ## Project Overview
 
 This project enables users to create databases, design table schemas, insert data, and query information across both PostgreSQL and MySQL using a conversational AI interface. Instead of writing SQL manually, you chat with an AI assistant that understands your intent and executes the appropriate database operations safely.
@@ -26,7 +34,7 @@ Containerizes your database infrastructure:
 
 ### 2. **Python FastMCP Server** (`server.py`)
 A FastMCP server that exposes database operations as callable tools:
-- Runs on `http://127.0.0.1:8000/sse` (Server-Sent Events)
+- Runs on `http://127.0.0.1:8000` (Streamable HTTP transport)
 - Implements 5 database tools (create, read, write, schema inspection)
 - Validates all inputs to prevent SQL injection
 - Supports both PostgreSQL and MySQL with unified interface
