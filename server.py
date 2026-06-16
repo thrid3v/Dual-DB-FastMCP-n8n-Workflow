@@ -68,6 +68,9 @@ def create_database(db_type: str, database_name: str) -> str:
     try:
         if db_type == 'postgres':
             conn = get_db_connection('postgres', os.getenv('PG_CREATE_DB', 'postgres'))
+            # CREATE DATABASE cannot run inside a transaction block; psycopg2
+            # opens one implicitly unless the connection is in autocommit mode.
+            conn.autocommit = True
             cursor = conn.cursor()
             cursor.execute(sql.SQL('CREATE DATABASE {};').format(sql.Identifier(database_name)))
         elif db_type == 'mysql':
